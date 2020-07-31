@@ -20,8 +20,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -40,14 +38,12 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
-.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -59,7 +55,6 @@ coverage.xml
 *.log
 local_settings.py
 db.sqlite3
-db.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -77,26 +72,11 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# IPython
-profile_default/
-ipython_config.py
-
 # pyenv
 .python-version
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
-
-# Celery stuff
+# celery beat schedule file
 celerybeat-schedule
-celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
@@ -122,8 +102,61 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
+/src/main/data/raw/
+/src/main/data/preprocessed/
+.idea/
 
-# Pyre type checker
-.pyre/
+*.csv
+env
+europarl-v*
+*.zip
+*.tgz
+*.gz
+.*txt
+!requirements.txt
+*.en
+*.de
+*.xml
+README
+iwslt
+*.tsv
+*.ids
+Europarl.*
+bpe.*
+*.bpe.*
+
+*.tmx
+*.png
+*.txt
+bitext*
+train.*
+val.*
+test.*
+
+# model extensions
+
+*.tar
+*.pkl
+
+!project/utils/tmx_to_text/LICENSE.txt
+!project/utils/tmx_to_text/test.tmx
+!project/utils/tmx_to_text/README.rst
+
+
+/floyd_train_models.sh
+/floyd_en_train_models.sh
+scripts/floyd
+!de-en.log
+
+!data/preprocessed/europarl/de/splits/30/samples.*
+!data/preprocessed/europarl/de/splits/30/translation.*
+
+finaltraslations
+*.pt
+*.vec
+
+!test/test_data/samples*
+!test/test_data/test.tmx
+!test/trained_model/*
+
+!data/preprocessed/europarl/de/stats/*
