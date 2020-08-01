@@ -1,14 +1,13 @@
 import gzip
 import os
 import shutil
+import sys
 import tarfile
 import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
 from urllib.error import ContentTooShortError
-
-from project.utils.external.download import _print_download_progress
 from project.utils.utils_parsers import DatasetConfigParser
 
 
@@ -79,3 +78,21 @@ class FileExtractor():
         else:
             print("File already extracted!")
         return True
+
+
+def _print_download_progress(count, block_size, total_size):
+    """
+    Function used for printing the download progress.
+    Used as a call-back function in maybe_download_and_extract().
+    # https://github.com/Hvass-Labs/TensorFlow-Tutorials
+    # Copyright 2016 by Magnus Erik Hvass Pedersen
+    """
+    # Percentage completion.
+    pct_complete = float(count * block_size) / total_size
+    # Limit it because rounding errors may cause it to exceed 100%.
+    pct_complete = min(1.0, pct_complete)
+    # Status-message. Note the \r which means the line should overwrite itself.
+    msg = "\r- Download progress: {0:.1%}".format(pct_complete)
+    # Print it.
+    sys.stdout.write(msg)
+    sys.stdout.flush()

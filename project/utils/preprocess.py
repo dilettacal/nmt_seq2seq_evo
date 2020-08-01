@@ -3,7 +3,6 @@ import time
 import urllib
 
 from project.utils.data import persist_txt, custom_data_splits
-from project.utils.external.europarl import maybe_download_and_extract_dataset
 from project.utils.external.tmx_to_text import Converter, FileOutput
 from project.utils.utils_logging import Logger
 from project.utils.utils_retrieve_corpora import TmxCorpusDownloader, FileExtractor
