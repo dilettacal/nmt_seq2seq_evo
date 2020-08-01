@@ -11,7 +11,7 @@ class TranslateParserTest(unittest.TestCase):
         self.assertIs(self.parser.parse_args(["--path", "results"]).path, "results")
 
     def test_file(self):
-        self.assertIs(self.parser.parse_args(["--file", "translation.txt"]).file, "translation.txt")
+        self.assertIs(self.parser.parse_args(["--file", "translation.txt"]).file_dir, "translation.txt")
 
     def empty_path(self):
         self.assertFalse(translate(""))

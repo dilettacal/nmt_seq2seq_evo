@@ -27,24 +27,55 @@ class TmxCorpusDownloader(object):
         os.makedirs(self.download_directory, exist_ok=True)
         file_endings = (".gz", ".tar", ".zip")
         already_downloaded = [e for e in self.download_directory.iterdir() if e.is_file()
-                 and (e.name.endswith(file_endings))]
+                              and (e.name.endswith(file_endings))]
         download = False
         if not already_downloaded:
             for url in self.full_url:
                 if download:
                     break
                 try:
-                    split =urllib.parse.urlsplit(url)
+                    split = urllib.parse.urlsplit(url)
                     file = split.query.split("/")[-1]
                     final_destination = os.path.join(self.download_directory, file)
                     urllib.request.urlretrieve(url, final_destination, reporthook=_print_download_progress)
                     print("\nCorpus downloaded in {}".format(self.download_directory))
                     download = True
                 except (urllib.error.URLError or ContentTooShortError) as e:
-                    #http://opus.nlpl.eu/download.php?f=Europarl/v8/tmx/en-fr.tmx.gz
+                    # http://opus.nlpl.eu/download.php?f=Europarl/v8/tmx/en-fr.tmx.gz
                     print(e)
                     continue
         else:
             print("File already downloaded in {}".format(self.download_directory))
 
         return self.download_directory
+
+
+class FileExtractor():
+    def __init__(self, file_dir):
+        self.file_dir = file_dir
+
+    def extract(self):
+        already_extracted = [e for e in self.file_dir.iterdir() if e.is_file()
+                             and (e.name.endswith(".tmx"))]
+        if not already_extracted:
+            file_endings = (".gz", ".tar", ".zip")
+            file_path = [e for e in self.file_dir.iterdir() if e.is_file()
+                         and (e.name.endswith(file_endings))]
+            assert len(file_path) == 1
+            path_to_compressed_file = str(file_path[0])
+            path_to_tmx_file = '' + path_to_compressed_file.split(".tmx")[0] + '.tmx'
+
+            # extract file
+            if path_to_compressed_file.endswith(".zip"):
+                zipfile.ZipFile(file=path_to_compressed_file, mode="r").extractall(self.file_dir)
+            elif path_to_compressed_file.endswith((".tar.gz", ".tgz")):
+                tarfile.open(name=path_to_compressed_file, mode="r:gz").extractall(self.file_dir)
+            elif path_to_compressed_file.endswith(".gz"):
+                # Modified for tmx files #
+                with gzip.open(path_to_compressed_file, 'rb') as gz:
+                    with open(path_to_tmx_file, 'wb') as uncompressed:
+                        shutil.copyfileobj(gz, uncompressed)
+            print("File extracted!")
+        else:
+            print("File already extracted!")
+        return True
