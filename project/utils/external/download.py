@@ -12,75 +12,12 @@ import os
 import urllib.request
 import tarfile
 import zipfile
-from abc import ABC, abstractmethod
-from pathlib import Path
+from abc import ABC
+import urllib
 from urllib.error import ContentTooShortError
 
 from project.utils.utils_parsers import DatasetConfigParser
 from settings import DATA_DIR_RAW, GENERAL_DATA_DIR
-
-
-class OpusCorpusDownloader(object):
-    def __init__(self, config: DatasetConfigParser, corpus_name="europarl", lang_code="de"):
-        self.url = config.get_raw_dataset_url(corpus_name)
-        self.lang_code = lang_code
-        self.download_directory = Path(config.get_download_dir(corpus_name) / Path(self.lang_code))
-        self.raw_url = Path(config.get_raw_dataset_url(corpus_name))
-
-    def __download_raw_corpus(self):
-        # check if file downloaded
-        file_en = Path("en-{}.tmx".format(self.lang_code))
-        file_xx = Path("{}-en.tmx".format(self.lang_code))
-
-        Path.mkdir(self.download_directory, exist_ok=True)
-        files = [e for e in self.download_directory.iterdir() if e.is_file()]
-        if files:
-            print("Corpus already downloaded in {}!".format(self.download_directory))
-        else:
-            try:
-                file_url = self.raw_url / Path(file_en.name + ".gz")
-                print("File", file_url)
-                file_path, _ = urllib.request.urlretrieve(url=file_url,
-                                                          filename=self.download_directory,
-                                                          reporthook=_print_download_progress)
-                return True
-
-            except:
-                try:
-                    file_url = self.raw_url / Path(file_xx.name + ".gz")
-                    file_path, _ = urllib.request.urlretrieve(url=file_url,
-                                                              filename=self.download_directory,
-                                                              reporthook=_print_download_progress)
-                    return True
-                except ContentTooShortError as e:
-                    print(e)
-                    return False
-
-    def __extract_corpus(self):
-        files = [x for x in self.download_directory.iterdir() if x.is_file()
-                 and x.name.endswith((".zip", ".tar.gz", ".tgz", ".gz"))]
-        if files and len(files) == 1:
-            if files[0].name.endswith(".zip"):
-                zipfile.ZipFile(file=files[0].as_uri(), mode="r").extractall(self.download_directory)
-            elif files[0].name.endswith((".tar.gz", ".tgz")):
-                tarfile.open(name=files[0].as_uri(), mode="r:gz").extractall(self.download_directory)
-            elif files[0].name.endswith(".gz"):
-                with gzip.open(files[0].as_uri(), 'rb') as gz:
-                    with open(self.download_directory, 'wb') as uncompressed:
-                        shutil.copyfileobj(gz, uncompressed)
-            return True
-
-    def download_and_extract(self):
-        download = self.__download_raw_corpus()
-        if download:
-            extract = self.__extract_corpus()
-            if extract:
-                return True
-        return False
-
-
-    def __unzip_file(self):
-        pass
 
 
 class CorpusDownloader(ABC):
