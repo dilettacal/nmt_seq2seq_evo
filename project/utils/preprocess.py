@@ -6,6 +6,7 @@ from project.utils.data import persist_txt, custom_data_splits
 from project.utils.external.europarl import maybe_download_and_extract_dataset
 from project.utils.external.tmx_to_text import Converter, FileOutput
 from project.utils.utils_logging import Logger
+from project.utils.utils_retrieve_corpora import TmxCorpusDownloader, FileExtractor
 from project.utils.utils_tokenizers import get_custom_tokenizer, SpacyTokenizer
 from project.utils.utils_functions import convert_time_unit
 from project.utils.utils_parsers import DatasetConfigParser
@@ -13,34 +14,33 @@ from settings import DATA_DIR_RAW, DATA_DIR_PREPRO
 import os
 
 
-def preprocess_single_dataset(dataset_parser, lang_code, parser):
+def preprocess_single_dataset(config, lang_code, parser):
     if lang_code == "en":
         raise SystemExit("English is the default language. Please provide second language!")
     if not lang_code:
         raise SystemExit("Empty language not allowed!")
-        # Download the raw tmx file
-    try:
-        print("Trying to download the file ...")
-        maybe_download_and_extract_dataset(dataset_parser=dataset_parser)
-        # maybe_download_and_extract_europarl(language_code=lang_code, tmx=True)
-    except urllib.error.HTTPError as e:
-        print(e)
-        raise SystemExit(
-            "Please download the parallel corpus manually from: http://opus.nlpl.eu/ | Europarl > Statistics and TMX/Moses Download "
-            "\nby selecting the data from the upper-right triangle (e.g. en > de])")
 
-    path_to_raw_file = os.path.join(DATA_DIR_RAW, dataset_parser.dataset_name, lang_code)
+    downloader = TmxCorpusDownloader(config, lang_code="fr")
+    file_dir = downloader.download()
+    file_extractor = FileExtractor(file_dir)
+    file_extractor.extract()
+
+    path_to_raw_file_dir = os.path.join(DATA_DIR_RAW, config.dataset_name, lang_code)
+    path_to_tmx_file = [f for f in os.listdir(path_to_raw_file_dir) if f.endswith(".tmx")]
+    assert len(path_to_tmx_file) == 1
+    tmx_file_name = path_to_tmx_file[0]
+
     MAX_LEN, MIN_LEN = 30, 2  # min_len is by defaul 2 tokens
 
     file_name = lang_code + "-" + "en" + ".tmx"
-    COMPLETE_PATH = os.path.join(path_to_raw_file, file_name)
+    COMPLETE_PATH = os.path.join(path_to_raw_file_dir, tmx_file_name)
     print(COMPLETE_PATH)
 
-    STORE_PATH = os.path.join(os.path.expanduser(DATA_DIR_PREPRO), dataset_parser.dataset_name, lang_code, "splits", str(MAX_LEN))
+    STORE_PATH = os.path.join(os.path.expanduser(DATA_DIR_PREPRO), config.dataset_name, lang_code, "splits", str(MAX_LEN))
     os.makedirs(STORE_PATH, exist_ok=True)
 
     start = time.time()
-    output_file_path = os.path.join(DATA_DIR_PREPRO, dataset_parser.dataset_name, lang_code)
+    output_file_path = os.path.join(DATA_DIR_PREPRO, config.dataset_name, lang_code)
 
     # Conversion tmx > text
     converter = Converter(output=FileOutput(output_file_path))
@@ -144,6 +144,6 @@ def raw_preprocess(parser):
     CORPUS = parser.dataset
     lang_code = parser.lang_code.lower()
 
-    dataset_parser = DatasetConfigParser(CORPUS)
-    preprocess_single_dataset(dataset_parser, lang_code, parser)
+    config = DatasetConfigParser(CORPUS)
+    preprocess_single_dataset(config, lang_code, parser)
 
