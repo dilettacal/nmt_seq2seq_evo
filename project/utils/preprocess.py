@@ -2,7 +2,7 @@ import re
 import time
 import urllib
 
-from project.utils.data import standard_data_splits, persist_txt, custom_data_splits
+from project.utils.data import persist_txt, custom_data_splits
 from project.utils.external.europarl import maybe_download_and_extract_dataset
 from project.utils.external.tmx_to_text import Converter, FileOutput
 from project.utils.utils_logging import Logger
@@ -78,14 +78,14 @@ def preprocess_single_dataset(dataset_parser, lang_code, parser):
 
     # Start the tokenisation process
     if isinstance(src_tokenizer, SpacyTokenizer):
-        print("Tokenization for source sequences is performed with spaCy")
+        print("\nTokenization for source sequences is performed with spaCy")
         with src_tokenizer.nlp.disable_pipes('ner'):
             for i, doc in enumerate(src_tokenizer.nlp.pipe(src_lines, batch_size=1000)):
                 tok_doc = ' '.join([tok.text for tok in doc])
                 temp_src_toks.append(tok_doc)
                 src_logger.log(tok_doc, stdout=True if i % 100000 == 0 else False)
     else:
-        print("Tokenization for source sequences is performed with FastTokenizer")
+        print("\nTokenization for source sequences is performed with FastTokenizer")
         for i, sent in enumerate(src_lines):
             tok_sent = src_tokenizer.tokenize(sent)
             tok_sent = ' '.join(tok_sent)
@@ -93,14 +93,14 @@ def preprocess_single_dataset(dataset_parser, lang_code, parser):
             src_logger.log(tok_sent, stdout=True if i % 100000 == 0 else False)
 
     if isinstance(trg_tokenizer, SpacyTokenizer):
-        print("Tokenization for target sequences is performed with spaCy")
+        print("\nTokenization for target sequences is performed with spaCy")
         with trg_tokenizer.nlp.disable_pipes('ner'):
             for i, doc in enumerate(trg_tokenizer.nlp.pipe(trg_lines, batch_size=1000)):
                 tok_doc = ' '.join([tok.text for tok in doc])
                 temp_trg_toks.append(tok_doc)
                 trg_logger.log(tok_doc, stdout=True if i % 100000 == 0 else False)
     else:
-        print("Tokenization for target sequences is performed with FastTokenizer")
+        print("\nTokenization for target sequences is performed with FastTokenizer")
         for i, sent in enumerate(trg_lines):
             tok_sent = trg_tokenizer.tokenize(sent)
             tok_sent = ' '.join(tok_sent)
@@ -127,7 +127,6 @@ def preprocess_single_dataset(dataset_parser, lang_code, parser):
 
     src_lines, trg_lines = filtered_src_lines, filtered_trg_lines
     print("Splitting files...")
-    # TODO custom or standard
     train_data, val_data, test_data, samples_data = custom_data_splits(src_lines, trg_lines,
                                                                        val_samples=parser.test_ratio)
     persist_txt(train_data, STORE_PATH, "train.tok", exts=(".en", "." + lang_code))

@@ -1,5 +1,5 @@
 """
-This is the main script to preprocess the Europarl dataset.
+Main script to preprocess datasets
 The script automatically downloads the dataset from the Opus Platform: http://opus.nlpl.eu/Europarl.php
 All TMX files are stored in the section "Statistics and TMX/Moses Downloads".
 The upper right triangle contains the tmx files. The lower left triangle the corresponding text files.
