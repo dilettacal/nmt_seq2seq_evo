@@ -1,4 +1,4 @@
-# Neural Machine Translation - Seq2Seq in PyTorch
+# Neural Machine Translation Evo - Seq2Seq in PyTorch
 
 This repository contains improvements and additional features to the Seq2Seq models I developed for my Thesis in ![Neural Machine Translation](https://github.com/dilettacal/nmt_seq2seq/).
 
